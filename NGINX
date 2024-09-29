@@ -2,7 +2,7 @@ NGINX (pronounced "Engine-X") is an open-source web server that is widely used t
 
 NB: Reverse proxy is basically any system that stands in between the client and server to process request. it appears to the client as if it is the origin server. In other words, the client thinks it is communicating directly with the origin server, but in reality, the reverse proxy is handling the request and forwarding it to the origin server.
 
-**Key Features of NGINX:
+Key Features of NGINX:
 
 1. Web Server
    NGINX can serve static content such as HTML, CSS, JavaScript, and images directly to users. It is particularly good at handling large numbers of concurrent connections efficiently, which makes it suitable for high-traffic websites.
@@ -122,3 +122,78 @@ Testing:
 Once Nginx is configured and running, you can test the reverse proxy by accessing your application through the public IP address of Server 1. For example, if Server 1 has a public IP address of 192.0.2.1, you can access your application by visiting http://192.0.2.1 in your web browser.
 
 Note that you'll need to ensure that the firewall rules on Server 1 allow incoming traffic on port 80. Additionally, you may need to configure the firewall rules on Server 2, Server 3, and Server 4 to allow incoming traffic from Server 1.
+
+
+
+How Nginx Directs Traffic to a Specific Docker Container with Load Balancing
+
+Let's say we have three Docker containers running different applications on three different Docker servers:
+
+docker-server-1: running transaction, picture, and status applications with IP address 10.0.0.2
+docker-server-2: running transaction, picture, and status applications with IP address 10.0.0.3
+docker-server-3: running transaction, picture, and status applications with IP address 10.0.0.4
+Nginx is running on docker-server-1 with IP address 10.0.0.1 and port 80. We want to use Nginx to direct traffic to any of the Docker containers running the picture application when a customer requests http://smeonline.com/picture.
+
+Nginx Configuration
+
+Here's an example Nginx configuration file that directs traffic to any of the Docker containers running the picture application:
+
+
+http {
+    upstream picture {
+        server 10.0.0.2:8081;
+        server 10.0.0.3:8081;
+        server 10.0.0.4:8081;
+    }
+
+    upstream transaction {
+        server 10.0.0.2:8080;
+        server 10.0.0.3:8080;
+        server 10.0.0.4:8080;
+    }
+
+    upstream status {
+        server 10.0.0.2:8082;
+        server 10.0.0.3:8082;
+        server 10.0.0.4:8082;
+    }
+
+    server {
+        listen 80;
+        server_name smeonline.com;
+
+        location /transaction {
+            proxy_pass http://transaction;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /picture {
+            proxy_pass http://picture;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /status {
+            proxy_pass http://status;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}
+In this example, we define three upstream blocks, one for each application. Each upstream block lists all three Docker containers running the application. We then define three location blocks, one for each application. Each location block proxies incoming requests to the corresponding upstream block.
+
+How Nginx Handles Traffic
+
+When a customer requests http://smeonline.com/picture, Nginx will direct the traffic to any of the Docker containers running the picture application as follows:
+
+Nginx receives the incoming request for http://smeonline.com/picture on docker-server-1.
+Nginx checks the location block for /picture and finds that it should proxy the request to the picture upstream block.
+Nginx selects one of the Docker containers listed in the picture upstream block using a load balancing algorithm (e.g. round-robin).
+Nginx sends the request to the selected Docker container.
+The selected Docker container receives the request and processes it.
+The selected Docker container returns the response to Nginx.
+Nginx returns the response to the customer.
+In summary, Nginx directs traffic to any of the Docker containers running the picture application by using a combination of upstream blocks and location blocks. The upstream blocks list all three Docker containers running the application, and the location blocks proxy incoming requests to the corresponding upstream block. Nginx uses a load balancing algorithm to select one of the Docker containers listed in the upstream block.
+
+Note: In this example, we assume that the Docker containers are running on different servers, but they can also be running on the same server. The Nginx configuration remains the same, but the IP addresses and ports may change.
