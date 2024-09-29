@@ -1,0 +1,124 @@
+NGINX (pronounced "Engine-X") is an open-source web server that is widely used to serve static content, reverse proxy web requests, and load balance traffic. It was initially developed to handle high concurrency with low resource usage, which made it popular for high-traffic websites. Over time, it evolved into a versatile tool that can also function as a reverse proxy, load balancer, and HTTP cache.
+
+NB: Reverse proxy is basically any system that stands in between the client and server to process request. it appears to the client as if it is the origin server. In other words, the client thinks it is communicating directly with the origin server, but in reality, the reverse proxy is handling the request and forwarding it to the origin server.
+
+**Key Features of NGINX:
+
+1. Web Server
+   NGINX can serve static content such as HTML, CSS, JavaScript, and images directly to users. It is particularly good at handling large numbers of concurrent connections efficiently, which makes it suitable for high-traffic websites.
+
+2. Reverse Proxy
+   A reverse proxy sits between client requests and backend servers. NGINX can forward client requests to backend servers (such as application servers or databases) and return the results to the client. This helps to:
+   - Distribute the load across multiple servers.
+   - Protect backend services from direct exposure to the public internet.
+   - Provide caching for improved performance.
+
+3. Load Balancer
+   NGINX can balance incoming client requests across multiple backend servers to ensure even distribution of traffic, improving the overall availability and reliability of services. Load balancing methods include:
+   - Round Robin: Requests are distributed evenly across all servers.
+   - Least Connections: Requests are sent to the server with the fewest active connections.
+   - IP Hash: The client IP address is used to determine which server should handle the request, ensuring that subsequent requests from the same client are sent to the same server.
+
+4. Caching
+   NGINX can cache the content that backend servers generate, reducing the need to make repeated requests to those servers. Caching speeds up responses for frequently accessed content and reduces the load on backend servers.
+
+5. SSL/TLS Termination
+   NGINX supports SSL/TLS encryption to secure client-server communications. It can also offload the SSL encryption workload from backend servers, allowing them to focus on processing application logic while NGINX handles the encryption.
+
+6. Serving Static and Dynamic Content
+   While NGINX is excellent at serving static content (HTML files, images, etc.), it can also act as a gateway to dynamic content by forwarding requests to application servers running environments like PHP, Python, or Node.js.
+
+7. HTTP/2 Support
+   NGINX supports the HTTP/2 protocol, which improves the performance of websites by allowing multiple requests to be sent simultaneously over a single connection, reducing latency.
+
+
+How NGINX Works:
+
+At its core, NGINX operates on an event-driven, asynchronous architecture, meaning it handles multiple requests using a single thread, rather than creating a new thread for each connection like some traditional web servers (e.g., Apache). This makes NGINX highly scalable and able to manage a large number of connections simultaneously.
+
+Main Components of NGINX:
+
+- Master Process: Manages worker processes and handles tasks such as reading configuration files and binding to ports.
+- Worker Processes: Handle the actual processing of requests, including serving files, communicating with backend servers, and applying configurations.
+
+Each worker process can handle thousands of connections efficiently using asynchronous, non-blocking methods, reducing overhead and improving performance in high-concurrency environments.
+
+Use Cases for NGINX:
+
+1. Web Hosting:
+   NGINX is often used to serve static websites or as the primary web server for dynamic content in combination with an application server (such as PHP-FPM for PHP or uWSGI for Python).
+
+2. Reverse Proxy & Load Balancer:
+   It is commonly deployed as a reverse proxy in front of application servers (e.g., Node.js, Django, Flask) and databases to distribute traffic and manage load balancing.
+
+3. API Gateway:
+   NGINX can serve as an API gateway to route and balance API requests to multiple services, while offering features like SSL termination and request rate limiting.
+
+4. Content Delivery and Caching:
+   NGINX is often used for caching static content such as images, CSS, and JavaScript files, reducing the number of requests to backend servers and speeding up response times.
+
+5. SSL Offloading:
+   To offload SSL processing from backend servers, NGINX can terminate SSL connections, handle encryption/decryption, and pass the unencrypted requests to backend services.
+
+
+Implementing Nginx as a Reverse Proxy
+=========================================
+
+To implement Nginx as a reverse proxy, you'll need to install it on one server, which will act as the entry point for your application. This server is often referred to as the "load balancer" or "reverse proxy server.
+
+Architecture:
+
+Server 1: Nginx reverse proxy server (publicly accessible)
+Server 2: Application server 1 (private IP address)
+Server 3: Application server 2 (private IP address)
+Server 4: Application server 3 (private IP address)
+Installation:
+
+You only need to install Nginx on Server 1, which will act as the reverse proxy server. You can install Nginx on a Red Hat-based distribution using the package manager. For example, on Red Hat Enterprise Linux (RHEL) or CentOS, you can run:
+
+sudo yum install epel-release
+sudo yum install nginx
+
+Configuration:
+Once Nginx is installed, you'll need to configure it to act as a reverse proxy. You'll need to create a configuration file that defines the upstream servers (your application servers) and the reverse proxy settings.
+Here's an example configuration file (/etc/nginx/nginx.conf):
+
+http {
+    upstream backend {
+        server 10.0.0.2:80; # Server 2
+        server 10.0.0.3:80; # Server 3
+        server 10.0.0.4:80; # Server 4
+    }
+
+    server {
+        listen 80;
+        server_name example.com;
+
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}
+In this example, we define an upstream group called backend that consists of three servers (Server 2, Server 3, and Server 4). We then define a server block that listens on port 80 and serves requests for example.com. The location / block defines the reverse proxy settings, which proxy requests to the backend upstream group.
+
+Restart Nginx:
+After updating the configuration file, you'll need to restart Nginx to apply the changes:
+sudo systemctl restart nginx
+OR
+nginx -s reload
+
+The nginx -s reload command sends a signal to the Nginx process to reload its configuration files. This command:
+
+Reloads the configuration files without interrupting the service
+Does not terminate the existing connections
+Applies the changes to new incoming requests
+This is a more gentle approach, as it doesn't interrupt the existing connections. However, if you have a large number of active connections, it may take some time for the changes to take effect.
+The sudo systemctl restart nginx command restarts the Nginx service
+
+Testing:
+
+Once Nginx is configured and running, you can test the reverse proxy by accessing your application through the public IP address of Server 1. For example, if Server 1 has a public IP address of 192.0.2.1, you can access your application by visiting http://192.0.2.1 in your web browser.
+
+Note that you'll need to ensure that the firewall rules on Server 1 allow incoming traffic on port 80. Additionally, you may need to configure the firewall rules on Server 2, Server 3, and Server 4 to allow incoming traffic from Server 1.
