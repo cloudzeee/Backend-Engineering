@@ -1,0 +1,81 @@
+Here's a more comprehensive and detailed guide to HTTP Status Codes, breaking down each code category and providing clearer explanations with examples:
+
+---
+ HTTP Status Codes
+
+HTTP status codes are standardized codes used by web servers to communicate the result of a client's request. They fall into five main categories:
+
+1. Informational Responses (100–199)  
+   These codes indicate that the request has been received and is being processed.
+
+   - 100 Continue: The initial part of the request has been received, and the client can continue to send the rest of the request.
+   - 101 Switching Protocols: The server is switching protocols as requested by the client (e.g., switching from HTTP to WebSocket).
+   - 102 Processing: The server has received and is processing the request, but there is no response yet (specific to WebDAV).
+
+2. Successful Responses (200–299)  
+   These codes signify that the client's request was successfully received, understood, and accepted.
+
+   - 200 OK: The request succeeded. The specific meaning depends on the HTTP method used (e.g., GET returns data, POST confirms data creation).
+   - 201 Created: The request succeeded, and a new resource was created (commonly used for POST requests, such as when a user signs up).
+   - 202 Accepted: The request was accepted for processing, but it is not yet complete.
+   - 203 Non-Authoritative Information: The request was successful, but the response may contain modified or third-party information.
+   - 204 No Content: The request was successful, but there is no content to return (e.g., deleting a resource using DELETE; no further information is needed).
+   - 205 Reset Content: The request was successful, and the server asks the client to reset its view (e.g., clearing a form).
+   - 206 Partial Content: The server returns part of the resource as requested by a Range header, often used in streaming or download resume operations.
+
+3. Redirection Messages (300–399)  
+   Redirection codes indicate that the client needs to take additional action to complete the request, usually involving a different URL.
+
+   - 300 Multiple Choices: The request has multiple possible responses, and the client or user must choose one.
+   - 301 Moved Permanently: The requested resource has been permanently moved to a new URL.
+   - 302 Found: The resource temporarily resides at a different URL, specified in the Location header.
+   - 303 See Other: The requested resource can be found at another URI using a GET method.
+   - 304 Not Modified: The resource has not changed since the last request, so the client can use the cached version.
+   - 305 Use Proxy: The requested resource must be accessed through a specified proxy (now largely deprecated).
+   - 307 Temporary Redirect: Similar to 302, but the client must use the same method in the next request.
+   - 308 Permanent Redirect: Similar to 301, but the HTTP method should remain the same for future requests.
+
+4. Client Error Responses (400–499)  
+   These codes indicate that there was an error with the client's request.
+
+   - 400 Bad Request: The server cannot process the request due to malformed syntax (e.g., a POST request missing required parameters).
+   - 401 Unauthorized: Authentication is required and has failed or has not yet been provided (e.g., access to a secure page without logging in).
+   - 402 Payment Required: Reserved for future use but is not widely implemented.
+   - 403 Forbidden: The server understands the request but refuses to authorize it (e.g., access restricted by permissions).
+   - 404 Not Found: The server cannot find the requested resource (e.g., a URL that doesn't exist).
+   - 405 Method Not Allowed: The method is not allowed for the requested resource (e.g., sending POST to a URL that only accepts GET).
+   - 406 Not Acceptable: The server cannot produce a response matching the Accept headers of the request.
+   - 407 Proxy Authentication Required: The client must first authenticate with a proxy.
+   - 408 Request Timeout: The server timed out waiting for the client to send a request.
+   - 409 Conflict: The request could not be completed due to a conflict with the current state of the resource (e.g., editing a resource that has changed).
+   - 410 Gone: The resource is permanently gone from the server, with no forwarding address.
+   - 411 Length Required: The server requires a Content-Length header to process the request.
+   - 412 Precondition Failed: The server does not meet one of the preconditions in the request headers.
+   - 413 Payload Too Large: The request body exceeds the server’s limits.
+   - 414 URI Too Long: The URI is too long for the server to process.
+   - 415 Unsupported Media Type: The server does not support the media type in the request.
+   - 416 Range Not Satisfiable: The server cannot fulfill the requested range for the resource.
+   - 417 Expectation Failed: The server cannot meet the expectations in the request headers.
+   - 418 I'm a teapot: An April Fools' joke (RFC 2324); the server refuses to brew coffee because it is a teapot.
+   - 421 Misdirected Request: The request was directed to a server that cannot produce a response.
+   - 422 Unprocessable Entity: The request is well-formed but has semantic errors (WebDAV).
+   - 423 Locked: The resource is locked (WebDAV).
+   - 424 Failed Dependency: The request failed because of a previous failure (WebDAV).
+   - 425 Too Early: The server is unwilling to process a request that may be replayed.
+   - 426 Upgrade Required: The client should switch protocols (e.g., to TLS/1.0).
+   - 428 Precondition Required: The server requires the request to be conditional.
+   - 429 Too Many Requests: The client has sent too many requests in a short time.
+   - 431 Request Header Fields Too Large: The server cannot process the request because its headers are too large.
+
+5. Server Error Responses (500–599)  
+   These codes indicate that the server encountered an error and could not fulfill the request.
+
+   - 500 Internal Server Error: A generic error indicating an unexpected condition on the server.
+   - 501 Not Implemented: The server does not support the requested functionality.
+   - 502 Bad Gateway: The server received an invalid response from an upstream server.
+   - 503 Service Unavailable: The server is currently unavailable (e.g., overload or maintenance).
+   - 504 Gateway Timeout: The server did not receive a timely response from an upstream server.
+   - 505 HTTP Version Not Supported: The server does not support the HTTP version in the request.
+   - 511 Network Authentication Required: The client must authenticate to access the network.
+
+Each status code conveys specific information about the success, failure, or direction of a request, helping developers diagnose and resolve issues efficiently.
