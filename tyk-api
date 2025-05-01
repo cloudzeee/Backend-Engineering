@@ -128,4 +128,92 @@ Suppose your backend API is hosted at `http://httpbingo.org/`. Here’s how you�
 
 ---
 
+Tyk handles API authentication by validating incoming requests against a set of configurable authentication mechanisms. Here's a breakdown of how Tyk handles API authentication:
+
+---
+
+ 🔐 Authentication Flow in Tyk Gateway
+
+When a client sends a request to an API managed by Tyk, the Gateway checks the request based on the authentication method configured for that API. The supported methods include:
+
+---
+
+ ✅ 1. API Key Authentication
+- How it works: Clients include an API key (usually in a header like `Authorization` or query string).
+- Tyk Behavior:
+  - Tyk extracts the key from the request.
+  - Validates the key against Redis (where key sessions are stored).
+  - Applies access rights, rate limits, and quotas associated with the key.
+
+---
+
+ ✅ 2. JWT (JSON Web Token) Authentication
+- How it works: Clients send a signed JWT in a header (e.g., `Authorization: Bearer <token>`).
+- Tyk Behavior:
+  - Verifies the token signature using a public key or secret.
+  - Optionally validates claims (e.g., expiry, audience).
+  - Can map claims to API access rights or inject metadata.
+
+---
+
+ ✅ 3. OAuth 2.0 Authentication
+- How it works: Tyk can be configured as an OAuth 2.0 authorization server or integrate with external ones.
+- Tyk Behavior:
+  - Handles token generation and validation (when using Tyk OAuth).
+  - Enforces scopes, token expiration, and client secrets.
+  - Token introspection can be enabled.
+
+---
+
+ ✅ 4. OpenID Connect (OIDC)
+- How it works: Built on top of OAuth 2.0, used for federated identity (e.g., SSO).
+- Tyk Behavior:
+  - Validates ID tokens issued by an Identity Provider (IdP).
+  - Claims can be used for user identification and access control.
+
+---
+
+ ✅ 5. HMAC Authentication
+- How it works: Request is signed with a secret key.
+- Tyk Behavior:
+  - Reconstructs the request signature server-side.
+  - Verifies it matches the one sent.
+  - Prevents tampering and provides authentication.
+
+---
+
+ ✅ 6. Basic Authentication
+- How it works: Uses HTTP basic auth headers (`username:password`).
+- Tyk Behavior:
+  - Compares with stored credentials for validation.
+  - Often used for internal or testing scenarios.
+
+---
+
+ ✅ 7. Keyless (Open) Access
+- How it works: No authentication; any request is allowed.
+- Tyk Behavior:
+  - Skips authentication checks.
+  - Useful for public APIs or prototyping.
+
+---
+
+ 🔁 Tyk Auth Process Flow (Simplified)
+
+```plaintext
+Client Request → Tyk Gateway → Auth Check (Key/JWT/OAuth etc.) → 
+  [✓ Valid?] → Proceed → Rate Limiting/Authorization/Middleware → Upstream API
+  [✗ Invalid?] → Reject (e.g., 403 Forbidden)
+```
+
+---
+
+ 🔒 Security Add-ons:
+- IP whitelisting/blacklisting
+- Client certificate validation (mutual TLS)
+- Header injection/removal based on auth method
+
+---
+
+Would you like an example showing how to set up one of these auth types (e.g., API Key or JWT) in Tyk?
 
