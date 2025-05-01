@@ -32,6 +32,9 @@ API Management (APIM) platforms provide tools to:
 
 These tools help manage the entire API lifecycle, making it easier for developers and administrators to control and optimize API usage.
 
+
+
+
 ---
 
  🚀 What is Tyk Gateway?
@@ -216,4 +219,20 @@ Client Request → Tyk Gateway → Auth Check (Key/JWT/OAuth etc.) →
 ---
 
 Would you like an example showing how to set up one of these auth types (e.g., API Key or JWT) in Tyk?
+
+
+Tyk Authorization Flow: 
+Authenticate: Tyk validates the API key or token.
+Retrieve Access Control:
+For API keys: Look up associated policy in Redis.
+For JWT: Decode and extract claims or policy ID.
+Check Permissions:
+
+Tyk checks whether the client is authorized to access the requested API, version, and endpoint.
+
+Enforce:
+
+If access is allowed → continue request.
+
+If not → return 403 Forbidden.
 
