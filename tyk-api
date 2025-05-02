@@ -223,16 +223,66 @@ Would you like an example showing how to set up one of these auth types (e.g., A
 
 Tyk Authorization Flow: 
 Authenticate: Tyk validates the API key or token.
-Retrieve Access Control:
-For API keys: Look up associated policy in Redis.
+For API keys: the gateway Look up associated policy in Redis. in redis api keys are usually assocated with list of APIs the api keys have access to 
 For JWT: Decode and extract claims or policy ID.
-Check Permissions:
-
 Tyk checks whether the client is authorized to access the requested API, version, and endpoint.
-
-Enforce:
-
 If access is allowed → continue request.
-
 If not → return 403 Forbidden.
+
+
+A Tyk policy is a reusable configuration object that defines what an API key (or token) is allowed to do. Instead of setting permissions and rate limits individually for each key, you can use a policy to apply a consistent set of rules to multiple keys or tokens.
+
+✅ Key Features of a Policy:
+Which APIs a key can access
+
+What rate limits and quotas are enforced
+
+What authentication methods are supported (e.g., API Key, JWT, OIDC)
+
+Optionally include metadata or tags
+
+Define access control rules (ACLs)
+
+Configure scopes (for OAuth/JWT)
+
+🗝️ How Policies Manage Keys
+Tyk uses API keys or JWT tokens to authenticate requests. When a key or token is linked to a policy:
+
+1. Policy Assigned at Key Creation
+When creating a key (via Dashboard UI or API), you assign a policy ID.
+
+The key then inherits all permissions, quotas, and rules defined in that policy.
+
+2. Policy Enforcement at Runtime
+When an API request comes in with a key, Tyk looks up the session data (usually from Redis).
+
+The session includes the policy ID.
+
+Tyk merges the policy’s rules with the key’s configuration to enforce:
+
+Rate limits
+
+Quotas
+
+API access control
+
+3. Policy Can Be Updated Centrally
+If you change the policy, all keys using it automatically follow the new rules (unless overridden in the key).
+
+This central management is efficient for large-scale key handling.
+
+🧪 Example:
+Let’s say you create a policy like this:
+
+ID: free-tier
+
+Quota: 1000 requests per day
+
+APIs: Access to /products and /orders
+
+Now, when you create an API key and attach the free-tier policy:
+
+The key will be allowed only to access the /products and /orders endpoints.
+
+Tyk will block any requests beyond the 1000 daily limit.
 
