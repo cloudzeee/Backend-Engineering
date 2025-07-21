@@ -1,0 +1,13 @@
+
+
+The difference between receiving a 400 Bad Request versus a 401 Unauthorized when the Authorization header is missing in JWT scenarios boils down to how the gateway validates the request:
+401 Unauthorized is the standard response when a request is missing valid authentication credentials. If the gateway expects an Authorization header (e.g., with an Authentication Token or JWT) and it’s simply absent, it commonly replies with 401 to indicate “authentication is required” or “credentials are missing.” This is the typical scenario for token-based auth.400 Bad Request, however, can occur with JWT authentication when the server tries to parse or validate the JWT but finds the token missing or malformed such that it treats the entire request as invalid or malformed. Some JWT libraries perform early validation of the token’s structure; if the JWT is not just absent but malformed or incorrectly formatted, the server may respond with 400 to signal “the request could not be processed due to bad input.”
+
+
+When the Authorization header is missing in traditional token-based authentication, the server responds with 401 Unauthorized because it recognizes the request lacks the necessary credentials and thus requires authentication. However, in JWT scenarios, the middleware or parser often tries to decode the JWT early in the request processing. If the token is missing or malformed, this decoding step treats the request as invalid or incorrectly formed and responds with 400 Bad Request, indicating a syntactically or semantically invalid input rather than just missing credentials.
+
+In essence, even though the header is absent in both cases, JWT processing often triggers a 400 error because the missing token causes a validation failure upfront, whereas traditional token authentication simply identifies missing credentials and returns 401.
+
+Do let me know if this information helps.
+
+Best Regards
