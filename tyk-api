@@ -286,3 +286,8 @@ The key will be allowed only to access the /products and /orders endpoints.
 
 Tyk will block any requests beyond the 1000 daily limit.
 
+
+
+True OpenTelemetry Architecture:
+Tyk Gateway → OTel Agent/SDK → OTel Collector → Prometheus → Grafana
+
