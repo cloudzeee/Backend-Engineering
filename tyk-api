@@ -288,6 +288,10 @@ Tyk will block any requests beyond the 1000 daily limit.
 
 
 
+Correct Sequences
+Standard Tyk Architecture:
+Tyk Gateway → Redis → Tyk Pump → Prometheus → Grafana
 True OpenTelemetry Architecture:
 Tyk Gateway → OTel Agent/SDK → OTel Collector → Prometheus → Grafana
-
+Hybrid Architecture:
+Tyk Gateway → Redis → Tyk Pump → OTel Collector → Prometheus → Grafana
